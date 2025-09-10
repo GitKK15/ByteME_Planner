@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ByteME Student Planner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2 id="planner-header">ByteME Planner</h2>
+      <ul>
+        <li onclick="showSection('tasks-section')">Task Manager</li>
+        <li onclick="showSection('calendar-section')">Calendar</li>
+        <li onclick="showSection('notes-section')">Notes & References</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+
+      <!-- Task Manager -->
+      <div id="tasks-section" class="section active">
+        <h1>Task Manager</h1>
+
+        <!-- Progress Bar moved to Top -->
+        <div id="progress-container">
+          <div id="progress-bar"></div>
+        </div>
+        <p id="progress-text"></p>
+
+        <form id="task-form">
+          <input type="text" id="title" placeholder="Task Title" required />
+          <input type="date" id="dueDate" required />
+          <input type="time" id="dueTime" required />
+          <input type="text" id="description" placeholder="Description" />
+          <select id="type">
+            <option value="assignment">Assignment</option>
+            <option value="exam">Exam</option>
+            <option value="personal">Personal</option>
+          </select>
+          <select id="priority">
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+          <textarea id="notes" placeholder="Notes (optional)"></textarea>
+          <button type="submit">Add Task</button>
+        </form>
+
+        <div id="task-type-filters">
+          <button onclick="setTypeFilter('all')">All Types</button>
+          <button onclick="setTypeFilter('assignment')">Assignments</button>
+          <button onclick="setTypeFilter('exam')">Exams</button>
+          <button onclick="setTypeFilter('personal')">Personal</button>
+        </div>
+
+        <div id="task-sub-filters">
+          <button onclick="setSubFilter('all')">All</button>
+          <button onclick="setSubFilter('soon')">Soon</button>
+          <button onclick="setSubFilter('done')">Done</button>
+        </div>
+
+        <ul id="task-list"></ul>
+      </div>
+
+      <!-- Calendar -->
+      <div id="calendar-section" class="section">
+        <h1>Calendar</h1>
+        <div id="calendar-nav">
+          <button onclick="changeMonth(-1)">&#8592; Prev</button>
+          <span id="calendar-month-year"></span>
+          <button onclick="changeMonth(1)">Next &#8594;</button>
+        </div>
+        <div id="calendar-grid"></div>
+        <h2 id="selected-date-title">Select a date</h2>
+        <ul id="calendar-tasks"></ul>
+      </div>
+
+      <!-- Notes & References -->
+      <div id="notes-section" class="section">
+        <h1>Notes & References</h1>
+        <div id="notes-wrapper">
+          <div id="notes-sidebar">
+            <h3>
+              Subjects
+              <button onclick="showNewFolderInput()">+ New</button>
+            </h3>
+            <input type="text" id="newFolderInput" placeholder="Enter subject" style="display:none;" onkeydown="if(event.key==='Enter'){createFolder();}">
+            <ul id="folderList"></ul>
+          </div>
+          <div id="notes-content">
+            <h3 id="currentFolderTitle">Select or Create a Folder</h3>
+            <button id="uploadBtn" onclick="triggerFileInput()" disabled>Upload Notes</button>
+            <input type="file" id="fileInput" multiple style="display:none" onchange="uploadNotes(event)">
+            <div id="notesList"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
