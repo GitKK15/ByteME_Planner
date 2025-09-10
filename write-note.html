@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Write Note</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 20px auto; padding: 0 15px;}
+    textarea { width: 100%; height: 400px; font-family: monospace; font-size: 1em; padding: 10px; box-sizing: border-box; resize: vertical; }
+    input[type=text] { width: 100%; padding: 7px; font-size: 1em; margin-bottom: 10px; box-sizing: border-box; }
+    button { background-color: #28a745; border: none; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h2>Write Note</h2>
+  <input type="text" id="noteTitle" placeholder="Note title">
+  <textarea id="noteContent" placeholder="Write your note here..."></textarea>
+  <br>
+  <button onclick="saveNote()">Save Note</button>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const folder = urlParams.get('folder');
+
+    if (!folder) {
+      alert('No folder specified. Close this tab and open from main app.');
+      document.body.innerHTML = '<p>Error: No folder specified.</p>';
+    }
+
+    function saveNote() {
+      const title = document.getElementById('noteTitle').value.trim();
+      const content = document.getElementById('noteContent').value.trim();
+      if (!title || !content) { alert('Please enter title and content'); return; }
+
+      const notesData = JSON.parse(localStorage.getItem('notesData') || '{}');
+      if (!notesData[folder]) notesData[folder] = [];
+
+      const uploadDate = new Date().toISOString().split('T')[0];
+      const blob = new Blob([content], {type:'text/plain'});
+      const reader = new FileReader();
+      reader.onload = () => {
+        notesData[folder].push({ name: title+'.txt', content: reader.result, uploadDate });
+        localStorage.setItem('notesData', JSON.stringify(notesData));
+        alert('Note saved successfully!');
+        window.close();
+      };
+      reader.readAsDataURL(blob);
+    }
+  </script>
+</body>
+</html>
