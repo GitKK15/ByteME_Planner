@@ -3,24 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ByteME Student Planner</title>
+  <title>ProTracker by ByteME</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Dark Mode Toggle -->
+  <button id="darkModeToggle" class="dark-mode-toggle">🌙 Dark Mode</button>
+
   <div class="container">
     <!-- Sidebar -->
     <div class="sidebar">
-      <h2 onclick="window.location.reload()" style="cursor:pointer;">ByteME Planner</h2>
+      <h2 onclick="window.location.reload()">ProTracker by ByteME</h2>
       <ul>
         <li onclick="showSection('tasks-section')">Task Manager</li>
         <li onclick="showSection('calendar-section')">Calendar</li>
         <li onclick="showSection('notes-section')">Notes & References</li>
+          <li onclick="showSection('recycle-section')">Recycle Bin</li>
+        <li onclick="showSection('timers-section')">Study Tracker</li>
       </ul>
+      <div class="sidebar-img-container">
+        <img src="IMG-20250911-WA0003 copy.jpg" alt="Sidebar Image" class="sidebar-img" />
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="content">
-
       <!-- Task Manager -->
       <div id="tasks-section" class="section active">
         <h1>Task Manager</h1>
@@ -29,24 +36,40 @@
         </div>
         <p id="progress-text"></p>
 
-        <form id="task-form">
-          <input type="text" id="title" placeholder="Task Title" required />
-          <input type="date" id="dueDate" required />
-          <input type="time" id="dueTime" required />
-          <input type="text" id="description" placeholder="Description" />
-          <select id="type">
-            <option value="assignment">Assignment</option>
-            <option value="exam">Exam</option>
-            <option value="personal">Personal</option>
-          </select>
-          <select id="priority">
-            <option value="low">Low Priority</option>
-            <option value="medium">Medium Priority</option>
-            <option value="high">High Priority</option>
-          </select>
-          <textarea id="notes" placeholder="Notes (optional)"></textarea>
-          <button type="submit" id="form-button">Add Task</button>
-        </form>
+        <button id="openTaskPanelBtn">Add Task</button>
+        <form id="task-form" style="display:none;"></form>
+
+        <!-- Task Panel Popup -->
+        <div id="taskPanel" class="task-panel">
+          <div class="task-panel-content">
+            <h2 id="taskPanelTitle">Add Task</h2>
+            <form id="popup-task-form">
+              <input type="text" id="title" placeholder="Task Title" required />
+              <input type="date" id="dueDate" required />
+              <input type="time" id="dueTime" required />
+              <input type="text" id="description" placeholder="Description" />
+              <select id="type">
+                <option value="assignment">Assignment</option>
+                <option value="exam">Exam</option>
+                <option value="personal">Personal</option>
+                <option value="others">Others</option>
+              </select>
+              <select id="priority">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+              <textarea id="notes" placeholder="Notes (optional)"></textarea>
+              <div class="popup-buttons">
+                <button type="submit">Save</button>
+                <button type="button" id="popup-cancel-btn">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Task Search -->
+        <input type="text" id="searchTasks" placeholder="Search tasks..." oninput="searchTasks()" />
 
         <div id="task-filters">
           <h3>Filter by Type:</h3>
@@ -55,6 +78,7 @@
             <button onclick="setTypeFilter('assignment')">Assignments</button>
             <button onclick="setTypeFilter('exam')">Exams</button>
             <button onclick="setTypeFilter('personal')">Personal</button>
+            <button onclick="setTypeFilter('others')">Others</button>
           </div>
 
           <h3>Filter by Status:</h3>
@@ -81,21 +105,60 @@
         <ul id="calendar-tasks"></ul>
       </div>
 
+      <!-- Notes Search -->
+
       <!-- Notes & References -->
       <div id="notes-section" class="section">
         <h1>Notes & References</h1>
         <div id="notes-controls">
-          <input type="text" id="newFolderInput" placeholder="Enter Subject Name">
+          <input type="text" id="newFolderInput" placeholder="Enter Subject Name" />
           <button onclick="createFolder()">+ Add Subject</button>
           <button id="uploadBtn" onclick="triggerFileInput()" disabled>Upload Notes</button>
           <button id="newNoteBtn" onclick="openWriteNote()" disabled>Write Note</button>
-          <input type="file" id="fileInput" multiple style="display:none" onchange="uploadNotes(event)">
+          <input type="file" id="fileInput" multiple style="display:none" onchange="uploadNotes(event)" />
+          <!-- Cloud sync controls -->
+          <button id="cloud-toggle-btn" onclick="toggleCloud()">Enable Cloud Sync</button>
+          <button id="cloud-sync-btn" onclick="uploadAllToCloud()" disabled>Sync Now</button>
+          <span id="cloud-status" style="margin-left:8px;color:var(--color-text-muted)"></span>
         </div>
 
         <h3 id="currentFolderTitle">Select or Create a Folder</h3>
         <div id="foldersContainer"></div>
       </div>
 
+      <!-- Recycle Bin -->
+      <div id="recycle-section" class="section">
+        <h1>Recycle Bin</h1>
+        <p>Deleted folders and files are stored here. You can restore or permanently delete items.</p>
+        <div id="recycle-controls">
+          <button id="empty-recycle" onclick="emptyRecycle()">Empty Recycle Bin</button>
+        </div>
+        <h3>Folders & Files</h3>
+        <div id="recycleContainer"></div>
+      </div>
+
+      <!-- Timers Section -->
+      <div id="timers-section" class="section">
+        <div class="card">
+          <h3>Study Tracker</h3>
+          <label for="session-name">Session Name:</label>
+          <input type="text" id="session-name" placeholder="Enter session name" />
+
+          <div id="timer-display">00:00</div>
+          <div class="timer-buttons">
+            <button id="start-timer">Start</button>
+            <button id="pause-timer">Pause</button>
+            <button id="reset-timer">Reset</button>
+          </div>
+
+          <p id="daily-progress">Sessions completed today: 0</p>
+
+          <h4>Completed Sessions</h4>
+          <ul id="session-history">
+            <li>No sessions completed yet.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 
